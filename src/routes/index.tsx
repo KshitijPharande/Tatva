@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import useEmblaCarousel from "embla-carousel-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { BookCard } from "@/components/BookCard";
 import { books } from "@/data/books";
@@ -19,8 +20,7 @@ const highlights = [
 
 export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const slidesRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -36,24 +36,6 @@ export default function HomePage() {
             start: "top top",
             end: "bottom top",
             scrub: true,
-          },
-        });
-      }
-
-      // Horizontal pinned highlights
-      if (slidesRef.current && trackRef.current) {
-        const track = trackRef.current;
-        const distance = () => track.scrollWidth - window.innerWidth;
-        gsap.to(track, {
-          x: () => -distance(),
-          ease: "none",
-          scrollTrigger: {
-            trigger: slidesRef.current,
-            start: "top top",
-            end: () => `+=${distance()}`,
-            scrub: 1,
-            pin: true,
-            invalidateOnRefresh: true,
           },
         });
       }
@@ -134,24 +116,46 @@ export default function HomePage() {
       </section>
 
       {/* HORIZONTAL HIGHLIGHTS */}
-      <section ref={slidesRef} className="relative h-screen overflow-hidden bg-paper">
-        <div ref={trackRef} className="flex h-full" style={{ width: `${highlights.length * 100}vw` }}>
-          {highlights.map((s, i) => (
-            <div key={i} className="flex h-full w-screen items-center px-6 md:px-20">
-              <div className="grid w-full max-w-6xl mx-auto gap-12 md:grid-cols-2 md:items-center">
-                <div className="aspect-[4/5] overflow-hidden bg-ivory shadow-page">
-                  <img src={s.img} alt={s.title} className="h-full w-full object-cover" loading="lazy" />
+      <section className="bg-paper py-28 md:py-36 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-16">
+            <h2 className="font-display text-5xl text-ink md:text-6xl"><em>What we believe</em></h2>
+          </div>
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex -ml-6 md:-ml-12 cursor-grab active:cursor-grabbing">
+              {highlights.map((s, i) => (
+                <div key={i} className="min-w-0 flex-[0_0_100%] md:flex-[0_0_85%] lg:flex-[0_0_75%] pl-6 md:pl-12">
+                  <div className="grid gap-8 md:gap-16 md:grid-cols-2 items-center">
+                    <div className="aspect-[4/5] overflow-hidden bg-ivory shadow-page">
+                      <img src={s.img} alt={s.title} className="h-full w-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="py-6 md:py-0">
+                      <p className="text-[11px] uppercase tracking-[0.35em] text-teal">0{i + 1} — {s.kicker}</p>
+                      <h3 className="mt-6 font-display text-4xl leading-tight text-ink md:text-5xl lg:text-6xl">
+                        <em>{s.title}</em>
+                      </h3>
+                      <p className="mt-6 max-w-md text-base leading-relaxed text-ink-soft">{s.body}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.35em] text-teal">0{i + 1} — {s.kicker}</p>
-                  <h2 className="mt-6 font-display text-4xl leading-tight text-ink md:text-6xl">
-                    <em>{s.title}</em>
-                  </h2>
-                  <p className="mt-6 max-w-md text-base leading-relaxed text-ink-soft">{s.body}</p>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
+          
+          <div className="mt-12 flex items-center gap-4">
+            <button 
+              onClick={() => emblaApi?.scrollPrev()} 
+              className="group flex h-12 w-12 items-center justify-center rounded-full border border-border text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper"
+            >
+              <span className="transition-transform group-hover:-translate-x-1">←</span>
+            </button>
+            <button 
+              onClick={() => emblaApi?.scrollNext()} 
+              className="group flex h-12 w-12 items-center justify-center rounded-full border border-border text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper"
+            >
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </button>
+          </div>
         </div>
       </section>
 
