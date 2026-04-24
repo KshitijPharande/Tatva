@@ -14,14 +14,22 @@ export function BookCard({ book, index = 0 }: { book: Book; index?: number }) {
         to={`/books/${book.id}`}
         className="group block"
       >
-        <div className="relative aspect-[3/4] overflow-hidden bg-paper shadow-soft">
+        <div className="relative aspect-[3/4] overflow-hidden bg-paper shadow-soft transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:shadow-lg">
           <img
             src={book.coverUrl}
             alt={book.title}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/15 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          {/* Synopsis overlay */}
+          <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-ink/85 via-ink/40 to-transparent p-5 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+            <p className="line-clamp-4 text-[13px] leading-relaxed text-paper/90">
+              {book.description}
+            </p>
+            <p className="mt-3 text-[10px] uppercase tracking-[0.25em] text-paper/60">
+              Read more →
+            </p>
+          </div>
         </div>
         <div className="mt-4">
           <p className="text-[10px] uppercase tracking-[0.25em] text-ink-soft">{book.genre}</p>

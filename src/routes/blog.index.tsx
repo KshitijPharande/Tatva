@@ -43,6 +43,38 @@ export default function BlogPage() {
           ))}
         </div>
       </section>
+
+      {/* NEWSLETTER */}
+      <section className="border-t border-border bg-paper px-6 py-20 md:py-28">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-[11px] uppercase tracking-[0.4em] text-teal">The Journal</p>
+          <h2 className="mt-5 font-display text-4xl leading-tight text-ink md:text-5xl">
+            <em>Read slowly, in your inbox.</em>
+          </h2>
+          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-ink-soft">
+            New essays, editorial letters, and quiet reading recommendations — sent a few times a year. No hurry, no noise.
+          </p>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="mt-10 flex flex-col items-center gap-3 sm:flex-row"
+          >
+            <input
+              type="email"
+              placeholder="your@email.com"
+              className="w-full flex-1 border border-border bg-ivory px-5 py-4 text-sm text-ink placeholder:text-ink-soft focus:border-ink focus:outline-none sm:w-auto"
+            />
+            <button
+              type="submit"
+              className="group w-full flex-shrink-0 bg-ink px-7 py-4 text-[12px] uppercase tracking-[0.2em] text-paper transition-colors hover:bg-teal sm:w-auto"
+            >
+              Subscribe →
+            </button>
+          </form>
+          <p className="mt-5 text-[10px] uppercase tracking-[0.3em] text-ink-soft">
+            No spam. Unsubscribe at any time.
+          </p>
+        </div>
+      </section>
     </SiteLayout>
   );
 }

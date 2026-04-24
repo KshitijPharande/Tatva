@@ -2,14 +2,41 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
-  pages: string[];
+  content: string;
   title: string;
   author?: string;
   onClose?: () => void;
 };
 
-export function PageReader({ pages, title, author, onClose }: Props) {
+export function PageReader({ content, title, author, onClose }: Props) {
   const [mode, setMode] = useState<"page" | "scroll">("page");
+
+  // Dynamically paginate the single content string into chunks of ~650 characters.
+  // Forces a new page when a chapter heading is detected.
+  const pages = useMemo(() => {
+    const paragraphs = content.split('\n\n');
+    const result: string[] = [];
+    let currentPage = '';
+    
+    for (const p of paragraphs) {
+      const isChapterHeading = p.trim().toUpperCase().startsWith('CHAPTER');
+      
+      // Force a page break if we hit a chapter heading and the current page isn't empty
+      if (isChapterHeading && currentPage.trim().length > 0) {
+        result.push(currentPage.trim());
+        currentPage = '';
+      }
+
+      if (currentPage.length + p.length > 650 && currentPage.length > 0) {
+        result.push(currentPage.trim());
+        currentPage = p;
+      } else {
+        currentPage += (currentPage ? '\n\n' : '') + p;
+      }
+    }
+    if (currentPage.trim()) result.push(currentPage.trim());
+    return result;
+  }, [content]);
 
   // Build a linear array of single pages. The first page is the title page.
   const bookPages = useMemo(() => {
@@ -32,11 +59,20 @@ export function PageReader({ pages, title, author, onClose }: Props) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const lockRef = useRef(false);
   const touchStart = useRef<number | null>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const pendingScrollPageRef = useRef<number | null>(null);
+
+  const handleScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const maxScroll = scrollHeight - clientHeight;
+    setScrollProgress(maxScroll > 0 ? scrollTop / maxScroll : 0);
+  }, []);
 
   const turn = useCallback(
     (dir: 1 | -1) => {
@@ -205,7 +241,7 @@ export function PageReader({ pages, title, author, onClose }: Props) {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="relative grid h-full w-auto max-w-full aspect-[1/1.414] grid-cols-1 overflow-hidden rounded-sm bg-paper shadow-page paper-grain"
+                className="relative grid h-full w-auto max-w-full aspect-[1/1.414] grid-cols-1 overflow-hidden rounded-sm bg-paper shadow-page paper-grain @container"
                 style={{ transformStyle: "preserve-3d" }}
               >
                 {/* Left spine shadow to simulate a book feel on a single page */}
@@ -214,39 +250,42 @@ export function PageReader({ pages, title, author, onClose }: Props) {
                 {/* Page Content */}
                 <div
                   ref={pageRef}
-                  className="h-full overflow-hidden px-8 py-10 md:px-14 md:py-16"
+                  className="h-full overflow-hidden flex flex-col justify-between"
+                  style={{ padding: "10cqi 10cqi" }}
                 >
                   {current.isTitle ? (
                     // Title page
                     <div className="flex h-full flex-col justify-between">
-                      <p className="text-[10px] uppercase tracking-[0.4em] text-teal">Tatva — A Reading</p>
+                      <p className="text-teal" style={{ fontSize: "2.2cqi", textTransform: "uppercase", letterSpacing: "0.4em" }}>Tatva — A Reading</p>
                       <div>
-                        <h2 className="font-display text-4xl leading-tight text-ink md:text-5xl">
+                        <h2 className="font-display text-ink" style={{ fontSize: "8cqi", lineHeight: "1.1" }}>
                           <em>{title}</em>
                         </h2>
                         {author && (
-                          <p className="mt-4 font-display text-lg text-ink-soft">by {author}</p>
+                          <p className="font-display text-ink-soft mt-4" style={{ fontSize: "3.5cqi" }}>by {author}</p>
                         )}
-                        <div className="mt-8 h-px w-16 bg-ink" />
-                        <p className="mt-8 text-sm text-ink-soft">
+                        <div className="bg-ink mt-8 h-px" style={{ width: "15cqi" }} />
+                        <p className="text-ink-soft mt-8" style={{ fontSize: "2.5cqi" }}>
                           Turn the page to begin. The world outside slows to match.
                         </p>
                       </div>
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-ink-soft">An imprint of Tatva</p>
+                      <p className="text-ink-soft" style={{ fontSize: "2cqi", textTransform: "uppercase", letterSpacing: "0.3em" }}>An imprint of Tatva</p>
                     </div>
                   ) : current.isFin ? (
                     // Fin page
                     <div className="flex h-full flex-col items-center justify-center text-center">
-                      <p className="italic-display text-3xl text-ink">Fin.</p>
-                      <p className="mt-4 text-[11px] uppercase tracking-[0.3em] text-ink-soft">
+                      <p className="italic-display text-ink" style={{ fontSize: "6cqi" }}>Fin.</p>
+                      <p className="text-ink-soft mt-4" style={{ fontSize: "2.2cqi", textTransform: "uppercase", letterSpacing: "0.3em" }}>
                         End of sample
                       </p>
                     </div>
                   ) : (
                     // Content page
                     <>
-                      <p className="reading-text whitespace-pre-line">{current.content}</p>
-                      <p className="mt-10 text-right text-[11px] uppercase tracking-[0.3em] text-ink-soft">
+                      <p className="whitespace-pre-line text-ink" style={{ fontFamily: "var(--font-display)", fontSize: "3.8cqi", lineHeight: "1.85", textAlign: "justify" }}>
+                        {current.content}
+                      </p>
+                      <p className="text-right text-ink-soft mt-auto pt-4" style={{ fontSize: "2cqi", textTransform: "uppercase", letterSpacing: "0.3em" }}>
                         {current.pageNum} / {totalPages}
                       </p>
                     </>
@@ -256,8 +295,16 @@ export function PageReader({ pages, title, author, onClose }: Props) {
             </AnimatePresence>
           </div>
 
+          {/* Progress Bar */}
+          <div className="h-[2px] w-full bg-border">
+            <div
+              className="h-full bg-teal transition-all duration-500 ease-out"
+              style={{ width: `${(currentIndex / (bookPages.length - 1)) * 100}%` }}
+            />
+          </div>
+
           {/* Controls */}
-          <div className="flex items-center justify-between border-t border-border bg-ivory/70 px-6 py-4 backdrop-blur md:px-10">
+          <div className="flex items-center justify-between bg-ivory/70 px-6 py-4 backdrop-blur md:px-10">
             <button
               onClick={() => turn(-1)}
               disabled={currentIndex === 0}
@@ -266,7 +313,7 @@ export function PageReader({ pages, title, author, onClose }: Props) {
               ← Previous
             </button>
             <p className="hidden text-[11px] uppercase tracking-[0.25em] text-ink-soft md:block">
-              Arrows, wheel, or swipe to turn · {progress > 0 ? `${progress} / ${totalPages}` : 'Cover'}
+              {progress > 0 ? `${progress} / ${totalPages}` : 'Cover'}
             </p>
             <button
               onClick={() => turn(1)}
@@ -278,8 +325,9 @@ export function PageReader({ pages, title, author, onClose }: Props) {
           </div>
         </>
       ) : (
-        /* Scroll Mode Area */
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-6 md:px-10 md:py-10">
+        <>
+        {/* Scroll Mode Area */}
+        <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-4 py-6 md:px-10 md:py-10">
           <div className="mx-auto w-full max-w-[700px] rounded-sm bg-paper px-8 py-16 shadow-page paper-grain md:px-16 md:py-24">
             {/* Title Section */}
             <div className="mb-20 text-center">
@@ -295,16 +343,21 @@ export function PageReader({ pages, title, author, onClose }: Props) {
             </div>
 
             {/* Pages Section */}
-            {pages.map((p, i) => (
-              <div key={i} data-scroll-page={i + 1} className="mb-10">
-                <p className="reading-text whitespace-pre-line">{p}</p>
-                {i < pages.length - 1 && (
-                  <div className="mx-auto my-10 flex w-12 justify-center text-ink-soft">
-                    <span className="text-xl leading-none">·</span>
-                  </div>
-                )}
-              </div>
-            ))}
+            {pages.map((p, i) => {
+              const isChapter = p.trim().toUpperCase().startsWith('CHAPTER');
+              const nextIsChapter = i < pages.length - 1 && pages[i + 1].trim().toUpperCase().startsWith('CHAPTER');
+              
+              return (
+                <div key={i} data-scroll-page={i + 1} className={`mb-10 ${isChapter && i !== 0 ? 'mt-32 border-t border-border pt-24 md:mt-48 md:pt-32' : ''}`}>
+                  <p className="reading-text whitespace-pre-line text-justify">{p}</p>
+                  {i < pages.length - 1 && !nextIsChapter && (
+                    <div className="mx-auto my-12 flex w-12 justify-center text-ink-soft">
+                      <span className="text-xl leading-none">·</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
             {/* Fin Section */}
             <div className="mt-20 border-t border-border pt-10 text-center">
@@ -315,6 +368,20 @@ export function PageReader({ pages, title, author, onClose }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Scroll Progress Bar */}
+        <div className="h-[2px] w-full bg-border">
+          <div
+            className="h-full bg-teal transition-[width] duration-150 ease-out"
+            style={{ width: `${scrollProgress * 100}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-center bg-ivory/70 px-6 py-3 backdrop-blur">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-ink-soft">
+            {Math.round(scrollProgress * 100)}% read
+          </p>
+        </div>
+        </>
       )}
     </div>
   );

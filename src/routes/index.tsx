@@ -89,17 +89,17 @@ export default function HomePage() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.85 }}
+            initial={{ opacity: 0, y: 20, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className="mt-10 flex flex-wrap items-center gap-4"
           >
             <Link
               to="/books"
-              className="group inline-flex items-center gap-3 bg-ink px-7 py-4 text-[12px] uppercase tracking-[0.2em] text-paper transition-colors hover:bg-teal"
+              className="group inline-flex items-center gap-3 bg-ink px-7 py-4 text-[12px] uppercase tracking-[0.2em] text-paper transition-all duration-300 hover:bg-teal hover:shadow-lg"
             >
               Browse the library
-              <span className="transition-transform group-hover:translate-x-1">→</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
             <Link
               to="/publish"
@@ -160,9 +160,9 @@ export default function HomePage() {
       </section>
 
       {/* FEATURED BOOKS */}
-      <section className="bg-ivory px-6 py-28 md:py-36">
+      <section className="bg-ivory px-6 pt-20 pb-16 md:pt-28 md:pb-20">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-16 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-8">
+          <div className="mb-14 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-8">
             <div>
               <p className="text-[11px] uppercase tracking-[0.3em] text-ink-soft">The Library</p>
               <h2 className="mt-3 font-display text-5xl text-ink md:text-6xl"><em>Featured titles</em></h2>
@@ -178,10 +178,12 @@ export default function HomePage() {
       </section>
 
       {/* CAMPAIGNS */}
-      <section className="bg-ivory px-6 py-28 md:py-36">
+      <section className="bg-ivory px-6 pt-16 pb-24 md:pt-20 md:pb-32">
         <div className="mx-auto max-w-7xl">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-ink-soft">This Season</p>
-          <h2 className="mt-3 font-display text-5xl text-ink md:text-6xl"><em>Campaigns</em></h2>
+          <div className="mb-14 border-t border-border pt-16">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-ink-soft">This Season</p>
+            <h2 className="mt-3 font-display text-5xl text-ink md:text-6xl"><em>Campaigns</em></h2>
+          </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {[
               { tag: "Spring 2025", title: "The Quiet Series", body: "A four-book series on solitude, slowness, and the rooms we read in." },

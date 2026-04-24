@@ -31,8 +31,8 @@ export default function PublishPage() {
             <ol className="mt-8 space-y-5 text-sm leading-relaxed text-ink-soft">
               <li>1. Subject line: <span className="text-ink">Submission — [Genre] — [Manuscript Title]</span></li>
               <li>2. Include in your email body: your name, short bio, and contact number.</li>
-              <li>3. Attach a 1-2 page synopsis in PDF or DOCX format.</li>
-              <li>4. Attach sample writing: first 3 chapters, or up to 20 poems.</li>
+              <li>3. Attach a 1-2 page synopsis (PDF or DOCX format).</li>
+              <li>4. Attach sample writing: first 3 chapters, or up to 20 poems. (Please include a .docx or .txt file in addition to any PDF to help our digital reading team).</li>
               <li>5. Optional: mention similar books/authors and your intended readership.</li>
             </ol>
 

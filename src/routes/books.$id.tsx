@@ -89,7 +89,7 @@ export default function BookDetail() {
 
       {reading && (
         <PageReader
-          pages={book.pages}
+          content={book.content}
           title={book.title}
           author={book.author}
           onClose={() => setReading(false)}

@@ -1,12 +1,9 @@
 import { Link, useParams } from "react-router-dom";
-import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import { PageReader } from "@/components/PageReader";
 import { articles } from "@/data/blog";
 export default function ArticlePage() {
   const { id } = useParams();
   const a = articles.find((x) => x.id === id);
-  const [reading, setReading] = useState(false);
 
   if (!a) {
     return (
@@ -34,20 +31,30 @@ export default function ArticlePage() {
           </h1>
           <p className="mt-6 text-sm text-ink-soft">By {a.author}</p>
           <div className="mx-auto my-12 h-px w-16 bg-ink" />
-          <p className="reading-text text-left">{a.excerpt}</p>
-
-          <button
-            onClick={() => setReading(true)}
-            className="mt-12 group inline-flex items-center gap-3 bg-ink px-8 py-4 text-[12px] uppercase tracking-[0.2em] text-paper transition-colors hover:bg-teal"
-          >
-            Read essay <span className="transition-transform group-hover:translate-x-1">→</span>
-          </button>
+        </div>
+        
+        <div className="mx-auto mt-20 max-w-2xl text-left">
+          {a.content.split('\n\n').map((paragraph, idx) => {
+            const isChapter = paragraph.trim().toUpperCase().startsWith('CHAPTER');
+            if (isChapter) {
+              return (
+                <h2 key={idx} className="mt-20 mb-8 font-display text-3xl italic text-ink">
+                  {paragraph}
+                </h2>
+              );
+            }
+            return (
+              <p key={idx} className="mb-8 reading-text">
+                {paragraph}
+              </p>
+            );
+          })}
+          
+          <div className="mt-24 border-t border-border pt-12 text-center">
+            <p className="italic-display text-2xl text-ink">Fin.</p>
+          </div>
         </div>
       </article>
-
-      {reading && (
-        <PageReader pages={a.pages} title={a.title} author={a.author} onClose={() => setReading(false)} />
-      )}
     </SiteLayout>
   );
 }
