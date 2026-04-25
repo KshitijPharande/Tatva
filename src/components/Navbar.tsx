@@ -23,28 +23,21 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-500 ${
-        scrolled
-          ? "bg-paper/85 backdrop-blur-md border-b border-border"
-          : "bg-transparent"
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-500 ${scrolled
+        ? "bg-paper/85 backdrop-blur-md border-b border-border"
+        : "bg-transparent"
+        }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 md:py-4">
-        <Link to="/" className="group flex items-center gap-2.5">
+        <Link to="/" className={`absolute -left-8 md:-left-10 top-1/2 -translate-y-1/2 ${open ? "hidden md:block" : ""}`}>
           <img
             src={logo}
-            alt="Tatva logo"
-            className="-my-14 h-40 w-auto object-contain"
+            alt="Tatva"
+            className="h-[120px] md:h-40 w-auto object-contain"
           />
-          <div className="flex items-baseline gap-2">
-            <span className="italic-display text-2xl tracking-tight text-ink">
-              Tatva
-            </span>
-            <span className="hidden text-[10px] uppercase tracking-[0.3em] text-ink-soft md:inline">
-              Publishing
-            </span>
-          </div>
         </Link>
+        {/* Spacer to balance flex layout since logo is absolute */}
+        <div className="w-12 md:w-32" />
 
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((l) => (
@@ -52,8 +45,7 @@ export function Navbar() {
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `link-line text-[13px] uppercase tracking-[0.18em] hover:text-ink ${
-                  isActive ? "text-ink" : "text-ink-soft"
+                `link-line text-[13px] uppercase tracking-[0.18em] hover:text-ink ${isActive ? "text-ink" : "text-ink-soft"
                 }`
               }
               end={l.to === "/"}
