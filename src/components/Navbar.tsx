@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
+import logo from "@/assets/logo.png";
 
 const links = [
   { to: "/", label: "Home" },
@@ -28,14 +29,21 @@ export function Navbar() {
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:py-6">
-        <Link to="/" className="group flex items-baseline gap-2">
-          <span className="italic-display text-2xl tracking-tight text-ink">
-            Tatva
-          </span>
-          <span className="hidden text-[10px] uppercase tracking-[0.3em] text-ink-soft md:inline">
-            Publishing
-          </span>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 md:py-4">
+        <Link to="/" className="group flex items-center gap-2.5">
+          <img
+            src={logo}
+            alt="Tatva logo"
+            className="-my-14 h-40 w-auto object-contain"
+          />
+          <div className="flex items-baseline gap-2">
+            <span className="italic-display text-2xl tracking-tight text-ink">
+              Tatva
+            </span>
+            <span className="hidden text-[10px] uppercase tracking-[0.3em] text-ink-soft md:inline">
+              Publishing
+            </span>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

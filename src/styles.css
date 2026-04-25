@@ -51,7 +51,7 @@
   --paper: oklch(0.97 0.012 85);
   --ink: oklch(0.22 0 0);                  /* #1A1A1A */
   --ink-soft: oklch(0.22 0 0 / 0.6);
-  --teal: oklch(0.62 0.09 188);            /* rgb(15,158,153) */
+  --teal: oklch(0.64 0.13 220);            /* ~#1EA5C7 — matches Tatva wave logo */
 
   --background: var(--ivory);
   --foreground: var(--ink);
