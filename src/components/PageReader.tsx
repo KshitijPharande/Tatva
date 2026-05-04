@@ -14,18 +14,23 @@ export function PageReader({ content, title, author, onClose }: Props) {
   // Dynamically paginate the single content string into chunks of ~650 characters.
   // Forces a new page when a chapter heading is detected.
   const pages = useMemo(() => {
-    const paragraphs = content.split('\n\n');
+    const paragraphs = (content || "").split('\n\n');
     const result: string[] = [];
     let currentPage = '';
     
     for (const p of paragraphs) {
-      const isChapterHeading = p.trim().toUpperCase().startsWith('CHAPTER');
+      const plainText = p.replace(/<[^>]*>/g, '').trim();
+      const isChapterHeading = plainText.toUpperCase().startsWith('CHAPTER');
+      const isPageBreak = /^[-—]{2,3}$/.test(plainText) || plainText.toLowerCase() === '/pagebreak';
       
-      // Force a page break if we hit a chapter heading and the current page isn't empty
-      if (isChapterHeading && currentPage.trim().length > 0) {
+      // Force a page break if we hit a chapter heading or manual break
+      if ((isChapterHeading || isPageBreak) && currentPage.trim().length > 0) {
         result.push(currentPage.trim());
         currentPage = '';
       }
+      
+      // Skip adding the '---' text itself to the new page
+      if (isPageBreak) continue;
 
       if (currentPage.length + p.length > 650 && currentPage.length > 0) {
         result.push(currentPage.trim());
@@ -282,9 +287,11 @@ export function PageReader({ content, title, author, onClose }: Props) {
                   ) : (
                     // Content page
                     <>
-                      <p className="whitespace-pre-line text-ink" style={{ fontFamily: "var(--font-display)", fontSize: "3.8cqi", lineHeight: "1.85", textAlign: "justify" }}>
-                        {current.content}
-                      </p>
+                      <p 
+                        className="whitespace-pre-line text-ink [&_b]:font-semibold [&_i]:italic [&_u]:underline" 
+                        style={{ fontFamily: "var(--font-display)", fontSize: "3.8cqi", lineHeight: "1.85", textAlign: "justify" }}
+                        dangerouslySetInnerHTML={{ __html: current.content || "" }}
+                      />
                       <p className="text-right text-ink-soft mt-auto pt-4" style={{ fontSize: "2cqi", textTransform: "uppercase", letterSpacing: "0.3em" }}>
                         {current.pageNum} / {totalPages}
                       </p>
@@ -349,7 +356,10 @@ export function PageReader({ content, title, author, onClose }: Props) {
               
               return (
                 <div key={i} data-scroll-page={i + 1} className={`mb-10 ${isChapter && i !== 0 ? 'mt-32 border-t border-border pt-24 md:mt-48 md:pt-32' : ''}`}>
-                  <p className="reading-text whitespace-pre-line text-justify">{p}</p>
+                  <p 
+                    className="reading-text whitespace-pre-line text-justify [&_b]:font-semibold [&_i]:italic [&_u]:underline"
+                    dangerouslySetInnerHTML={{ __html: p }}
+                  />
                   {i < pages.length - 1 && !nextIsChapter && (
                     <div className="mx-auto my-12 flex w-12 justify-center text-ink-soft">
                       <span className="text-xl leading-none">·</span>

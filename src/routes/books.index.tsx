@@ -1,19 +1,36 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { BookCard } from "@/components/BookCard";
-import { books, genres } from "@/data/books";
+import { getBooks, getGenres } from "@/data/books";
 
 export default function BooksPage() {
   const [q, setQ] = useState("");
   const [genre, setGenre] = useState<string | null>(null);
+  const [books, setBooks] = useState<any[]>([]);
+  const [genres, setGenres] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const fetchedBooks = await getBooks();
+      const fetchedGenres = await getGenres();
+      setBooks(fetchedBooks || []);
+      setGenres((fetchedGenres || []).filter(Boolean));
+      setLoading(false);
+    }
+    load();
+  }, []);
 
   const filtered = useMemo(() => {
     return books.filter((b) => {
-      const matchesQ = q.trim() === "" || `${b.title} ${b.author} ${b.tags.join(" ")}`.toLowerCase().includes(q.toLowerCase());
+      const title = b.title || "";
+      const author = b.author || "";
+      const tags = b.tags || [];
+      const matchesQ = q.trim() === "" || `${title} ${author} ${tags.join(" ")}`.toLowerCase().includes(q.toLowerCase());
       const matchesG = !genre || b.genre === genre;
       return matchesQ && matchesG;
     });
-  }, [q, genre]);
+  }, [q, genre, books]);
 
   return (
     <SiteLayout>

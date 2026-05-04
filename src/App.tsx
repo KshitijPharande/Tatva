@@ -8,6 +8,7 @@ import BlogPage from "@/routes/blog.index";
 import ArticlePage from "@/routes/blog.$id";
 import PublishPage from "@/routes/publish";
 import ContactPage from "@/routes/contact";
+import StudioPage from "@/routes/studio";
 import { SiteLayout } from "@/components/SiteLayout";
 
 function NotFoundPage() {
@@ -44,6 +45,7 @@ function AnimatedRoutes() {
           <Route path="/blog/:id" element={<ArticlePage />} />
           <Route path="/publish" element={<PublishPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/studio/*" element={<StudioPage />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

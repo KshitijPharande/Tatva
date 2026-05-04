@@ -11,7 +11,7 @@ export function BookCard({ book, index = 0 }: { book: Book; index?: number }) {
       transition={{ duration: 0.7, delay: (index % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
     >
       <Link
-        to={`/books/${book.id}`}
+        to={`/books/${book.slug}`}
         className="group block"
       >
         <div className="relative aspect-[3/4] overflow-hidden bg-paper shadow-soft transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:shadow-lg">

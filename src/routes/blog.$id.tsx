@@ -1,9 +1,34 @@
 import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { PortableText } from '@portabletext/react';
 import { SiteLayout } from "@/components/SiteLayout";
-import { articles } from "@/data/blog";
+import { getArticleBySlug } from "@/data/blog";
+
 export default function ArticlePage() {
   const { id } = useParams();
-  const a = articles.find((x) => x.id === id);
+  const [a, setArticle] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      if (id) {
+        const data = await getArticleBySlug(id);
+        setArticle(data);
+      }
+      setLoading(false);
+    }
+    load();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <SiteLayout>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-ink-soft">Loading...</p>
+        </div>
+      </SiteLayout>
+    );
+  }
 
   if (!a) {
     return (
@@ -34,21 +59,19 @@ export default function ArticlePage() {
         </div>
         
         <div className="mx-auto mt-20 max-w-2xl text-left">
-          {a.content.split('\n\n').map((paragraph, idx) => {
-            const isChapter = paragraph.trim().toUpperCase().startsWith('CHAPTER');
-            if (isChapter) {
-              return (
-                <h2 key={idx} className="mt-20 mb-8 font-display text-3xl italic text-ink">
-                  {paragraph}
-                </h2>
-              );
-            }
-            return (
-              <p key={idx} className="mb-8 reading-text">
-                {paragraph}
-              </p>
-            );
-          })}
+          {a.content && (
+            <PortableText 
+              value={a.content} 
+              components={{
+                block: {
+                  normal: ({children}) => <p className="mb-8 reading-text">{children}</p>,
+                  h2: ({children}) => <h2 className="mt-20 mb-8 font-display text-3xl italic text-ink">{children}</h2>,
+                  h3: ({children}) => <h3 className="mt-12 mb-6 font-display text-2xl italic text-ink">{children}</h3>,
+                  blockquote: ({children}) => <blockquote className="border-l border-ink pl-6 italic text-ink-soft my-8">{children}</blockquote>,
+                }
+              }}
+            />
+          )}
           
           <div className="mt-24 border-t border-border pt-12 text-center">
             <p className="italic-display text-2xl text-ink">Fin.</p>

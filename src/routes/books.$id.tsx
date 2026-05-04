@@ -1,14 +1,36 @@
 import { Link, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SiteLayout } from "@/components/SiteLayout";
 import { PageReader } from "@/components/PageReader";
-import { books } from "@/data/books";
+import { getBookBySlug } from "@/data/books";
 
 export default function BookDetail() {
   const { id } = useParams();
-  const book = books.find((b) => b.id === id);
+  const [book, setBook] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [reading, setReading] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      if (id) {
+        const data = await getBookBySlug(id);
+        setBook(data);
+      }
+      setLoading(false);
+    }
+    load();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <SiteLayout>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-ink-soft">Loading...</p>
+        </div>
+      </SiteLayout>
+    );
+  }
 
   if (!book) {
     return (
@@ -75,12 +97,6 @@ export default function BookDetail() {
               >
                 Read sample
                 <span className="transition-transform group-hover:translate-x-1">→</span>
-              </button>
-              <button
-                onClick={() => alert("This is a demo — PDF download is simulated.")}
-                className="link-line text-[12px] uppercase tracking-[0.2em] text-ink"
-              >
-                Download PDF
               </button>
             </div>
           </motion.div>

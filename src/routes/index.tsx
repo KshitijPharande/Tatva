@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import useEmblaCarousel from "embla-carousel-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { BookCard } from "@/components/BookCard";
-import { books } from "@/data/books";
+import { getBooks } from "@/data/books";
+import { getCampaigns } from "@/data/campaigns";
 import heroImg from "@/assets/hero-water.jpg";
 import h1 from "@/assets/highlight1.jpg";
 import h2 from "@/assets/highlight2.jpg";
@@ -21,6 +22,19 @@ const highlights = [
 export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
+  const [featured, setFeatured] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const allBooks = await getBooks();
+      setFeatured((allBooks || []).filter((b: any) => b.featured));
+      
+      const allCampaigns = await getCampaigns();
+      setCampaigns(allCampaigns || []);
+    }
+    load();
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -42,8 +56,6 @@ export default function HomePage() {
     });
     return () => ctx.revert();
   }, []);
-
-  const featured = books.filter((b) => b.featured);
 
   return (
     <SiteLayout>
@@ -172,7 +184,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {featured.map((b, i) => <BookCard key={b.id} book={b} index={i} />)}
+            {featured.map((b, i) => <BookCard key={b.slug || i} book={b} index={i} />)}
           </div>
         </div>
       </section>
@@ -185,25 +197,36 @@ export default function HomePage() {
             <h2 className="mt-3 font-display text-5xl text-ink md:text-6xl"><em>Campaigns</em></h2>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {[
-              { tag: "Spring 2025", title: "The Quiet Series", body: "A four-book series on solitude, slowness, and the rooms we read in." },
-              { tag: "Anthology", title: "Letters from Home", body: "Twenty-two writers, one shared question: what does home sound like?" },
-              { tag: "Translation", title: "Marathi Voices", body: "An ongoing project bringing contemporary Marathi prose into English." },
-            ].map((c, i) => (
+            {campaigns.length === 0 ? (
+              <p className="italic-display py-10 text-xl text-ink-soft">No active campaigns.</p>
+            ) : campaigns.map((c, i) => (
               <motion.div
-                key={i}
+                key={c._id || i}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.7, delay: i * 0.1 }}
-                className="group flex flex-col justify-between border border-border bg-paper p-8 transition-colors hover:border-ink"
+                className="group flex flex-col justify-between border border-border bg-paper transition-colors hover:border-ink overflow-hidden"
               >
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-teal">{c.tag}</p>
-                  <h3 className="italic-display mt-4 text-3xl text-ink">{c.title}</h3>
-                  <p className="mt-4 text-sm leading-relaxed text-ink-soft">{c.body}</p>
+                  {c.imageUrl && (
+                    <div className="aspect-[4/3] w-full overflow-hidden border-b border-border">
+                      <img src={c.imageUrl} alt={c.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    </div>
+                  )}
+                  <div className="p-8">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-teal">{c.tag}</p>
+                    <h3 className="italic-display mt-4 text-3xl text-ink">{c.title}</h3>
+                    <p className="mt-4 text-sm leading-relaxed text-ink-soft">{c.body}</p>
+                  </div>
                 </div>
-                <p className="mt-10 text-[11px] uppercase tracking-[0.25em] text-ink">Learn more →</p>
+                <div className="px-8 pb-8">
+                  {c.link ? (
+                    <Link to={c.link} className="inline-block text-[11px] uppercase tracking-[0.25em] text-ink hover:text-teal">Learn more →</Link>
+                  ) : (
+                    <span className="text-[11px] uppercase tracking-[0.25em] text-ink">Learn more →</span>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
